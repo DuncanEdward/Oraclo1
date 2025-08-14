@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+pyswisseph
+sqlalchemy
+streamlit
+matplotlib
+seaborn
+pytz
+pandas
+numpy
