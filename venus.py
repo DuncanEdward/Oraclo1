@@ -38,12 +38,11 @@ if ipo_file and finviz_file:
     ticker_options = matched_df["Ticker"].unique().tolist()
     selected_tickers = st.multiselect("🎯 Select tickers to analyze", ticker_options)
 
-       with st.sidebar:
+    with st.sidebar:
         start_date, end_date = st.date_input(
             "📅 Select date range",
             value=(datetime.today().date(), datetime.today().date())
         )
-
         time_start, time_end = st.slider(
             "⏰ Time of day range",
             min_value=time(0, 0),
@@ -80,7 +79,6 @@ if ipo_file and finviz_file:
             aspect_orbs[aspect] = st.slider(
                 f"{aspect} Orb ±°", 1, 10, default_orbs[aspect]
             )
-
 
     aspect_config = get_user_aspect_config(aspect_orbs, aspect_scores)
     min_score = st.slider("🔍 Filters: Minimum Aspect Score", -5, 5, -5)
