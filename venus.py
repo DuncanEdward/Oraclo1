@@ -41,3 +41,79 @@ if ipo_file and finviz_file:
     with st.sidebar:
         start_date, end_date = st.date_input(
             "📅 Select date range",
+            value=(datetime.today().date(), datetime.today().date())
+        )
+
+        time_start, time_end = st.slider(
+            "⏰ Time of day range",
+            min_value=time(0, 0),
+            max_value=time(23, 59),
+            value=(time(9, 30), time(16, 0)),
+            step=timedelta(minutes=15)
+        )
+
+    st.subheader("🔧 Aspect Configuration")
+    aspect_scores = {}
+    aspect_orbs = {}
+
+    aspect_types = ['Conjunction', 'Opposition', 'Trine', 'Sextile', 'Square',
+                    'Quincunx', 'Semisextile', 'Semisquare', 'Sesquisquare']
+
+    default_scores = {
+        'Conjunction': 5, 'Opposition': -5, 'Trine': 3, 'Sextile': 2,
+        'Square': -3, 'Quincunx': -1, 'Semisextile': 1,
+        'Semisquare': -1, 'Sesquisquare': -1
+    }
+
+    default_orbs = {
+        'Conjunction': 5, 'Opposition': 5, 'Trine': 3, 'Sextile': 3,
+        'Square': 3, 'Quincunx': 2, 'Semisextile': 2,
+        'Semisquare': 2, 'Sesquisquare': 2
+    }
+
+    for aspect in aspect_types:
+        aspect_scores[aspect] = st.slider(
+            f"{aspect} Score", -5, 5, default_scores[aspect]
+        )
+
+    for aspect in aspect_types:
+        aspect_orbs[aspect] = st.slider(
+            f"{aspect} Orb ±°", 1, 10, default_orbs[aspect]
+        )
+
+    aspect_config = get_user_aspect_config(aspect_orbs, aspect_scores)
+    min_score = st.slider("🔍 Filters: Minimum Aspect Score", -5, 5, -5)
+
+    if st.button("🔮 Run Analysis"):
+        for ticker in selected_tickers:
+            st.markdown(f"### 🔮 Aspect Analysis for {ticker}")
+            try:
+                result_df = calculate_aspects_for_ticker(
+                    ticker=ticker,
+                    matched_df=matched_df,
+                    start_date=start_date,
+                    end_date=end_date,
+                    time_start=time_start,
+                    time_end=time_end,
+                    aspect_config=aspect_config
+                )
+                result_df = result_df[result_df["Score"] >= min_score]
+
+                ipo_aspects = result_df[result_df["Source"] == "IPO"]
+                nyse_aspects = result_df[result_df["Source"] == "NYSE"]
+                transit_aspects = result_df[result_df["Source"] == "Transit"]
+
+                st.markdown("#### 🌱 IPO Aspects")
+                render_aspect_table(ipo_aspects)
+
+                st.markdown("#### 🏛️ NYSE Aspects")
+                render_aspect_table(nyse_aspects)
+
+                st.markdown("#### 🌌 Transit-to-Transit Aspects")
+                render_aspect_table(transit_aspects)
+
+                st.markdown("#### 📈 Aspect Score Summary")
+                render_aspect_heatmap(result_df)
+
+            except Exception as e:
+                st.error(f"Error analyzing {ticker}: {e}")
