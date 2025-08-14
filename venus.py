@@ -38,7 +38,7 @@ if ipo_file and finviz_file:
     ticker_options = matched_df["Ticker"].unique().tolist()
     selected_tickers = st.multiselect("🎯 Select tickers to analyze", ticker_options)
 
-    with st.sidebar:
+       with st.sidebar:
         start_date, end_date = st.date_input(
             "📅 Select date range",
             value=(datetime.today().date(), datetime.today().date())
@@ -52,34 +52,35 @@ if ipo_file and finviz_file:
             step=timedelta(minutes=15)
         )
 
-    st.subheader("🔧 Aspect Configuration")
-    aspect_scores = {}
-    aspect_orbs = {}
+        st.subheader("🔧 Aspect Configuration")
+        aspect_scores = {}
+        aspect_orbs = {}
 
-    aspect_types = ['Conjunction', 'Opposition', 'Trine', 'Sextile', 'Square',
-                    'Quincunx', 'Semisextile', 'Semisquare', 'Sesquisquare']
+        aspect_types = ['Conjunction', 'Opposition', 'Trine', 'Sextile', 'Square',
+                        'Quincunx', 'Semisextile', 'Semisquare', 'Sesquisquare']
 
-    default_scores = {
-        'Conjunction': 5, 'Opposition': -5, 'Trine': 3, 'Sextile': 2,
-        'Square': -3, 'Quincunx': -1, 'Semisextile': 1,
-        'Semisquare': -1, 'Sesquisquare': -1
-    }
+        default_scores = {
+            'Conjunction': 5, 'Opposition': -5, 'Trine': 3, 'Sextile': 2,
+            'Square': -3, 'Quincunx': -1, 'Semisextile': 1,
+            'Semisquare': -1, 'Sesquisquare': -1
+        }
 
-    default_orbs = {
-        'Conjunction': 5, 'Opposition': 5, 'Trine': 3, 'Sextile': 3,
-        'Square': 3, 'Quincunx': 2, 'Semisextile': 2,
-        'Semisquare': 2, 'Sesquisquare': 2
-    }
+        default_orbs = {
+            'Conjunction': 5, 'Opposition': 5, 'Trine': 3, 'Sextile': 3,
+            'Square': 3, 'Quincunx': 2, 'Semisextile': 2,
+            'Semisquare': 2, 'Sesquisquare': 2
+        }
 
-    for aspect in aspect_types:
-        aspect_scores[aspect] = st.slider(
-            f"{aspect} Score", -5, 5, default_scores[aspect]
-        )
+        for aspect in aspect_types:
+            aspect_scores[aspect] = st.slider(
+                f"{aspect} Score", -5, 5, default_scores[aspect]
+            )
 
-    for aspect in aspect_types:
-        aspect_orbs[aspect] = st.slider(
-            f"{aspect} Orb ±°", 1, 10, default_orbs[aspect]
-        )
+        for aspect in aspect_types:
+            aspect_orbs[aspect] = st.slider(
+                f"{aspect} Orb ±°", 1, 10, default_orbs[aspect]
+            )
+
 
     aspect_config = get_user_aspect_config(aspect_orbs, aspect_scores)
     min_score = st.slider("🔍 Filters: Minimum Aspect Score", -5, 5, -5)
