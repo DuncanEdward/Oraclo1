@@ -5,7 +5,6 @@ from astro_analysis import (
     parse_uploaded_files,
     filter_matching_tickers,
     get_user_aspect_config,
-    calculate_aspects_for_ticker,
     render_aspect_table,
     render_aspect_heatmap
 )
@@ -23,6 +22,50 @@ st.markdown("Upload your IPO and Finviz files to begin.")
 
 ipo_file = st.file_uploader("📥 Upload IPO CSV File", type=["csv"])
 finviz_file = st.file_uploader("📥 Upload Finviz Export CSV", type=["csv"])
+
+# 🔮 Core Aspect Calculation Functions
+
+def generate_datetimes(start_date, end_date, time_start, time_end, step_minutes=30):
+    current_date = start_date
+    while current_date <= end_date:
+        dt_start = datetime.combine(current_date, time_start)
+        dt_end = datetime.combine(current_date, time_end)
+        current_dt = dt_start
+        while current_dt <= dt_end:
+            yield current_dt
+            current_dt += timedelta(minutes=step_minutes)
+        current_date += timedelta(days=1)
+
+def calculate_aspects_at_datetime(ticker, dt, matched_df, aspect_config):
+    """
+    PLACEHOLDER: Replace with your real aspect logic.
+    This should return a DataFrame of aspects at this datetime.
+    """
+    # Example structure
+    return pd.DataFrame([{
+        "Ticker": ticker,
+        "Source": "IPO",
+        "Planet1": "Sun",
+        "Planet2": "Moon",
+        "Aspect": "Conjunction",
+        "Score": aspect_config.get("Conjunction", {}).get("score", 5),
+        "Datetime": dt
+    }])
+
+def calculate_aspects_for_ticker(ticker, matched_df, start_date, end_date, time_start, time_end, aspect_config):
+    all_results = []
+
+    for dt in generate_datetimes(start_date, end_date, time_start, time_end):
+        try:
+            aspects_df = calculate_aspects_at_datetime(ticker, dt, matched_df, aspect_config)
+            aspects_df["Datetime"] = dt
+            all_results.append(aspects_df)
+        except Exception as e:
+            print(f"⚠️ Error at {dt} for {ticker}: {e}")
+
+    return pd.concat(all_results, ignore_index=True) if all_results else pd.DataFrame()
+
+# 🧠 Main App Logic
 
 if ipo_file and finviz_file:
     ipo_df, finviz_df = parse_uploaded_files(ipo_file, finviz_file)
@@ -74,7 +117,6 @@ if ipo_file and finviz_file:
             aspect_scores[aspect] = st.slider(
                 f"{aspect} Score", -5, 5, default_scores[aspect]
             )
-
         for aspect in aspect_types:
             aspect_orbs[aspect] = st.slider(
                 f"{aspect} Orb ±°", 1, 10, default_orbs[aspect]
